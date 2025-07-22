@@ -1,3 +1,14 @@
 body {
     background-color: grey;
 }
+
+.dropdown-menu {
+    display: block;
+}
+
+.display-none {
+    display: none !important;
+}
+.display-block {
+    display: block;
+}
