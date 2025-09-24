@@ -1,84 +1,85 @@
 import "./css/style.css";
 
-const CLASS_NAME = "dropdown-menu"
-const SUBMENU_LINK_CLASS = "dropdown-menu-submenu-link"
+const CLASS_NAME = 'dropdown-menu'
+const SUBMENU_LINK_CLASS = 'ddms-submenu-link'
+const HOVER_SETTING_CLASS = 'ddms-hover'
+const CLICK_SETTING_CLASS = 'ddms-click'
 
 init()
 
 function init() {
+    const submenuPairs = getLinkAndSubmenuPairs();
     const links = getAllMenuLinks()
-    addEventListenerToEachElement(links, "click", toggleNextSibling)
+    const partners = getAllLinkPartners(links)
+    addClassToElements(links, SUBMENU_LINK_CLASS)    
+    addEventListenerToEachElement(links, 'click', submenuLinkActionFactory)
+
+
+    thing()    
 } 
 
-/**
- * Gets an array of all menu link header elements. A menu link header element is each element that preceeds a UL within each dropdown-menu element. 
- * 
- * @returns {Array} With nodes inside.
- */
+function thing() {
+    const menus = document.querySelectorAll(`.${CLASS_NAME}`)
+    console.log(menus)
+    menus.forEach(e => e.addEventListener('mouseleave', mouseLeaveEvent))
+}
+
+function mouseLeaveEvent(e) {
+    console.log(`MouseLeave ${e.target}`)
+}
+
 function getAllMenuLinks() {
     const menus = document.querySelectorAll(`.${CLASS_NAME} ul`)
     const links = new Array()
     let i = 0
     while(menus[i]) {
-        const prevSib = menus[i++].previousElementSibling
-        if (prevSib) (
+        const prevSib = menus[i].previousElementSibling
+        if (prevSib) {
             links.push(prevSib)
-        )
+        }
+        i++
     }
     return links
 }
 
-/**
- * Adds an event listener to each element passed to it.
- * 
- * @param {Array}  elementArray An array of elements that will have the listenter added to them.
- * @param {String} listenerType Listener type (ie. 'mouseover', 'click')
- * @param {Object} event        The function to be invoked. It's passed the element that it's being invoked on. Should return a function. 
- */
+function getAllLinkPartners(links) {
+    let partners = new Array()
+    for(const l of links) {
+        partners.push(l.nextElementSibling)
+    }
+    return partners 
+}
+
+function addClassToElements(elements, className) {
+    elements.forEach(e => e.classList.add(className))
+}
+
 function addEventListenerToEachElement(elementArray, listenerType, event) {
-    elementArray.forEach(element => {
-        element.addEventListener(listenerType, event(element))
+    elementArray.forEach(e => {
+        e.addEventListener(listenerType, event(e))
     })
 }
 
-/**
- * Returns a function that toggles the visibility of the next, sibling element between "none" and whatever style it had when the page loaded.
- *  
- * @param {Element} element The element to toggle the visibility of the next sibling of.
- * @returns a function that toggles the style.display of an element between "none" and whatever style it had when the page loaded.
- */
-function toggleNextSibling(element) {
-    const defaultStyle = element.nextElementSibling.style.display
+function submenuLinkActionFactory(element) {
+    let defDispVal = window.getComputedStyle(element.nextElementSibling, null).display
     return () => {
-        const nextEl = element.nextElementSibling
-        nextEl.style.display = nextEl.style.display === defaultStyle ? "none" : defaultStyle
+        const nextElement = element.nextElementSibling
+        const dispVal = window.getComputedStyle(nextElement, null).display
+        nextElement.style.display = dispVal === defDispVal ? 'none' : defDispVal
     }
 }
 
-function collapseAllSubmenus(element) {
-
-}
-
-function onMouseOver(element) {
-    return () => {
-        element.style['background-color'] = '#707070'
-    }
-}
-
-function onMouseOut(element) {
-    return () => {
-        element.style['background-color'] = null
-        const topEelements = element.children
-        let i = 0
-        while(topEelements[i]) {
-            hideAllDecendants(topEelements[i++])
+function getLinkAndSubmenuPairs() {
+    const menus = document.querySelectorAll(`.${CLASS_NAME} ul`)
+    const links = new Array()
+    for(let i = 0; menus[i]; i++) {
+        const prevSib = menus[i].previousElementSibling
+        if (prevSib) {
+            links.push({
+                'link': prevSib,
+                'menu': menus[i]
+            })
         }
     }
-}
-function hideAllDecendants(element) {
-    const children = element.querySelectorAll('ul')
-    let i = 0;
-    while(children[i]) {
-        children[i++].style.display = 'none'
-    }
+    return links
 }
